@@ -104,4 +104,10 @@ dist
 .tern-port
 
 # Config file
-config.json
+#config.json
+
+#Hardhat files
+cache
+artifacts
+/.idea/
+/typechain/
