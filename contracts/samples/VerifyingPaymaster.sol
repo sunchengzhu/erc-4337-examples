@@ -11,9 +11,9 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
  * The paymaster trusts an external signer to sign the transaction.
  * The calling user must pass the UserOp to that external signer first, which performs
  * whatever off-chain verification before signing the UserOp.
- * Note that this signature is NOT a replacement for wallet signature:
- * - the paymaster signs to agree to PAY for GAS.
- * - the wallet signs to prove identity and account ownership.
+ * Note that this signature is NOT a replacement for the account-specific signature:
+ * - the paymaster checks a signature to agree to PAY for GAS.
+ * - the account checks a signature to prove identity and account ownership.
  */
 contract VerifyingPaymaster is BasePaymaster {
 
@@ -53,8 +53,8 @@ contract VerifyingPaymaster is BasePaymaster {
      * verify our external signer signed this request.
      * the "paymasterAndData" is expected to be the paymaster and a signature over the entire request params
      */
-    function validatePaymasterUserOp(UserOperation calldata userOp, bytes32 /*userOpHash*/, uint256 requiredPreFund)
-    external view override returns (bytes memory context, uint256 sigTimeRange) {
+    function _validatePaymasterUserOp(UserOperation calldata userOp, bytes32 /*userOpHash*/, uint256 requiredPreFund)
+    internal view override returns (bytes memory context, uint256 sigTimeRange) {
         (requiredPreFund);
 
         bytes32 hash = getHash(userOp);
