@@ -1,181 +1,73 @@
-![](https://i.imgur.com/Ym2VV8z.png)
+# 项目介绍
 
-# Getting started
+1. 在原[erc-4337-examples](https://github.com/stackup-wallet/erc-4337-examples)项目的基础上实现了本地构造paymasterAndData的功能，而不需要通过stackup的[paymaster api](https://docs.stackup.sh/docs/api/paymaster/introduction#stackup-paymaster-api)，这是个收费的api。
+2. 在goerli上部署并核验了用到的所有合约，方便我们直接在etherscan上调用函数以及查看数据。
 
-A collection of example scripts for working with ERC-4337. For an overview on the EIP and account abstraction, see our docs [here](https://docs.stackup.sh/).
+# 前置步骤(已执行)
+1. 在[Infinitism的discord](https://discord.com/invite/fbDyENb6Y9)查找[goerli上最新部署的EntryPoint地址](https://discord.com/channels/892780451570270219/892780453940056066/1061786895161491456)
+2. 传入offchainSigner的账户地址和EntryPoint的合约地址部署VerifyingPaymaster.sol，质押eth（addStake）、在EntryPoint为paymaster充值eth（depositTo），参考[verifying_paymaster.test.ts](https://github.com/eth-infinitism/account-abstraction/blob/develop/test/verifying_paymaster.test.ts)
+3. 给sender账户转账eth
 
-All scripts in this repository is built using [@account-abstraction/sdk](https://www.npmjs.com/package/@account-abstraction/sdk). The implementation of all the following commands are located in the [scripts directory](./scripts/).
+# 使用步骤
 
-## Table of contents
-
-- [Setup](#setup)
-  - [Init config](#init-config)
-    - [`bundlerUrl`](#bundlerurl)
-    - [`rpcUrl`](#rpcurl)
-    - [`signingKey`](#signingkey)
-    - [`entryPoint`](#entrypoint)
-    - [`simpleAccountFactory`](#simpleaccountfactory)
-    - [`paymasterUrl`](#verifyingpaymasterurl)
-- [Commands](#commands)
-  - [Simple Account](#simple-account)
-    - [Get account address](#get-account-address)
-    - [Transfer ETH](#transfer-eth)
-    - [Transfer ERC-20 token](#transfer-erc-20-token)
-    - [Batch transfer ETH](#batch-transfer-eth)
-    - [Batch transfer ERC-20 token](#batch-transfer-erc-20-token)
-- [License](#license)
-- [Contact](#contact)
-
-# Setup
-
-Clone this repo into your local environment:
-
-```bash
-git clone git@github.com:stackup-wallet/erc-4337-examples.git
-```
-
-Install dependencies:
-
+1. 安装依赖：
 ```bash
 yarn install
 ```
 
-## Init config
-
-These config values will be used for all documented [commands](#commands).
-
+2. 编译合约、生成typechain代码
 ```bash
-yarn run init
+yarn hardhat compile
 ```
 
-### `bundlerUrl`
-
-**Default value is set to `http://localhost:4337`.**
-
-All UserOperations are required to be sent to a bundler. This field specifies the URL for the bundler you want to use.
-
-You can run a self-hosted instance with [stackup-bundler](https://github.com/stackup-wallet/stackup-bundler). **Fully managed instances are also available. If you would like one setup, come [talk to us](https://discord.gg/FpXmvKrNed)!**
-
-### `rpcUrl`
-
-**Default value is set to `http://localhost:8545`.**
-
-This is a standard RPC URL for an ethereum node. By default it uses the public RPC for Polygon mumbai testnet. You can change this to any network you like.
-
-### `signingKey`
-
-**Default value is randomly generated with ethers.js.**
-
-All UserOperations have a `signature` field which smart contract accounts will use to validate transactions. This key will be used to sign all UserOperations and set as the owner for the smart contract account.
-
-### `entryPoint`
-
-**Default value is set to `0x0F46c65C17AA6b4102046935F33301f0510B163A`.**
-
-This is address of the singleton EntryPoint contract. It is the same on all networks.
-
-### `simpleAccountFactory`
-
-**Default value is set to `0x63658F82752688E3E2Dd2FA8C511E85e919F62D7`.**
-
-This is the factory address for deploying [SimpleAccount.sol](https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/samples/SimpleAccount.sol). It is the same on all networks and allows us to generate deterministic addresses.
-
-_The default factory deploys a [forked version of `SimpleAccount.sol`](https://github.com/hazim-j/account-abstraction/blob/7f31abdd702772890a6633af70e1598e23f9b177/contracts/samples/SimpleAccount.sol#L98) with a one line change to make calling batched transactions easier._
-
-### `paymasterUrl`
-
-**Default value is an empty string.**
-
-This field specifies the URL to request paymaster approval when using the `--withPaymaster` flag. The examples assume that any paymaster service follows the interface specified [here](https://docs.stackup.sh/docs/api/paymaster/rpc-methods).
-
-# Commands
-
-Once you have an environment setup, these commands can be used for running the example scripts.
-
-The location of each script mimics the command structure. For example `yarn run simpleAccount address` will be located in `scripts/simpleAccount/address.ts`
-
-## Optional flags
-
-All commands below can be augmented with the following flags.
-
-### With Paymaster
-
-Appending `--withPaymaster` to any command will send UserOperations to the `paymasterUrl` specified in the config for approval. If successful, gas for this transaction will be paid for by the paymaster.
-
-Example:
-
+3. 启动bundler  
+建议使用本地启动的bundler，方便查看日志，使用步骤见[stackup-bundler](https://github.com/stackup-wallet/stackup-bundler)。  
+**需要注意的是**ERC4337_BUNDLER_PRIVATE_KEY对应的账户[必须持有足够支付gas fee的eth](https://discord.com/channels/874596133148696576/942772249662996520/1049685662305091584)，ERC4337_BUNDLER_ETH_CLIENT_URL对应的节点必须支持`debug_traceCall`。  
+alchemy、infura、quicknode等[主流的节点提供商都不支持`debug_traceCall`](https://discord.com/channels/874596133148696576/942772249662996520/1066236623949418657)，而geth则需要full node才可以使用`debug_traceCall`，[snap和light均不支持](https://miaoguoge.xyz/geth-snap-rpc/)，这对本地机器资源要求较高。
+所以我在[chainlist](https://chainlist.org/chain/5)上试了几个goerli的rpc server，下面这个看起来是可用的，测试命令如下：
 ```bash
-yarn run simpleAccount:erc20Transfer --withPaymaster ...
+curl https://goerli.blockpi.network/v1/rpc/public  \
+-X POST \
+-H "Content-Type: application/json" \
+--data '{"method":"debug_traceCall","params":[{"from":null,"to":"0x6b175474e89094c44da98b954eedeac495271d0f","data":"0x70a082310000000000000000000000006E0d01A76C3Cf4288372a29124A26D4353EE51BE"}, "latest"],"id":1,"jsonrpc":"2.0"}'
 ```
 
-In this example, the contract account does not need to hold any ETH for gas fees.
-
----
-
-## Simple Account
-
-Scripts for managing accounts based on [SimpleAccount.sol](https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/samples/SimpleAccount.sol).
-
-For CLI details:
-
-```bash
-yarn run simpleAccount -h
-```
-
-### Get account address
-
-Smart contract account addresses can be deterministically generated. Use this command to get your account address based on the `signingKey` set in your `config.json`.
-
-The account will be automatically deployed on the first transaction.
-
+# 命令
+### 获取simpleAccount账户地址
+该账户为UserOperation的sender，是向[SimpleAccountFactory中的createAccount](https://goerli.etherscan.io/address/0xd9743aBf3031BD1B0b9B64a53307468677b4051B#writeContract)传入signingKey对应的账户地址创建出来的
 ```bash
 yarn run simpleAccount address
 ```
 
-### Transfer ETH
-
-Before executing a transfer, make sure to deposit some ETH to the address generated by the `simpleAccount address` command.
+### eth转账
 
 ```bash
 yarn run simpleAccount transfer --to <address> --amount <eth>
 ```
+例子：
+```bash
+yarn run simpleAccount transfer --to 0x413978328AA912d3fc63929d356d353F6e854Ee1 --amount 0.001 --withPaymaster
+```
 
-### Transfer ERC-20 token
-
-Make sure the address generated by `simpleAccount:address` has enough specified tokens to execute the transfer.
-
-If not using a paymaster, make sure to also have enough ETH to pay gas fees.
-
+### erc20转账
 ```bash
 yarn run simpleAccount erc20Transfer --token <address> --to <address> --amount <decimal>
 ```
+例子：
+```bash
+yarn run simpleAccount erc20Transfer --token 0x61a89342F52d9F31626B56b64A83579E5c368f4c --to 0x413978328AA912d3fc63929d356d353F6e854Ee1 --amount 0.1
+```
+## 使用Paymaster
 
-### Batch transfer ETH
-
-This example shows how we can do multiple atomic ETH transfers in a single transaction.
+附加 `--withPaymaster`即可
 
 ```bash
-# recipient addresses is comma separated.
-# e.g. 0x123..abc,0x456...def
-yarn run simpleAccount batchTransfer --to <addresses> --amount <eth>
+yarn run simpleAccount:erc20Transfer --withPaymaster ...
 ```
-
-### Batch transfer ERC-20 token
-
-Similar to `simpleAccount batchTransfer`, we can also do multiple atomic contract interactions in a single transaction. This example shows us how with an ERC-20 token.
-
+例子：
 ```bash
-# recipient addresses is comma separated.
-# e.g. 0x123..abc,0x456...def
-yarn run simpleAccount batchErc20Transfer --token <address> --to <addresses> --amount <decimal>
+yarn run simpleAccount erc20Transfer --token 0x61a89342F52d9F31626B56b64A83579E5c368f4c --to 0x413978328AA912d3fc63929d356d353F6e854Ee1 --amount 0.1 --withPaymaster
 ```
 
----
 
-# License
 
-Distributed under the MIT License. See [LICENSE](./LICENSE) for more information.
-
-# Contact
-
-Feel free to direct any technical related questions to the `dev-hub` channel in the [Stackup Discord](https://discord.gg/FpXmvKrNed).
