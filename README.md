@@ -6,7 +6,8 @@
 # 前置步骤(已执行)
 1. 在[Infinitism的discord](https://discord.com/invite/fbDyENb6Y9)查找[goerli上最新部署的EntryPoint地址](https://discord.com/channels/892780451570270219/892780453940056066/1061786895161491456)
 2. 传入offchainSigner的账户地址和EntryPoint的合约地址部署VerifyingPaymaster.sol，质押eth（addStake）、在EntryPoint为paymaster充值eth（depositTo），参考[verifying_paymaster.test.ts](https://github.com/eth-infinitism/account-abstraction/blob/develop/test/verifying_paymaster.test.ts)
-3. 给sender账户转账eth
+3. 给simpleAccount账户转账一些eth（通过`yarn run simpleAccount address`查询地址）
+4. 给simpleAccount账户mint一些[erc20 token](https://goerli.etherscan.io/token/0x61a89342f52d9f31626b56b64a83579e5c368f4c)
 
 # 使用步骤
 
@@ -57,7 +58,7 @@ yarn run simpleAccount erc20Transfer --token <address> --to <address> --amount <
 ```bash
 yarn run simpleAccount erc20Transfer --token 0x61a89342F52d9F31626B56b64A83579E5c368f4c --to 0x413978328AA912d3fc63929d356d353F6e854Ee1 --amount 0.1
 ```
-## 使用Paymaster
+### 使用Paymaster
 
 附加 `--withPaymaster`即可
 
