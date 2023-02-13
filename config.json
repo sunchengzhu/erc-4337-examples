@@ -1,5 +1,5 @@
 {
-  "bundlerUrl": "https://app.stackup.sh/api/v1/bundler/13594ba2485dae0ceb95833f73867b9785d79fb8c6fa0cdbf47d3f3b7650f777",
+  "bundlerUrl": "http://127.0.0.1:4337",
   "rpcUrl": "https://eth-goerli.g.alchemy.com/v2/LGQbFlkhVrweR7DNFwt_WsJLL_IWE92H",
   "signingKey": "0x6c61d20f71bfbcc40b086a1788d7e51fcb2b2a9a482f4b3d165356d94207ae91",
   "entryPoint": "0x0F46c65C17AA6b4102046935F33301f0510B163A",

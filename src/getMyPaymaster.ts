@@ -22,7 +22,7 @@ class VerifyingPaymasterAPI extends PaymasterAPI {
     }
 
     async getPaymasterAndData(userOp: Partial<UserOperationStruct>): Promise<string> {
-        const offchainSigner = new ethers.Wallet("0x979c16baa3909ba5a2c37b5ce6c2c1356699b5e5cf3d409ebd3e231d4db6a12d", this.provider);
+        const offchainSigner = new ethers.Wallet(this.offchainSigner, this.provider);
         const paymaster = await new VerifyingPaymaster__factory(offchainSigner).attach(this.paymaster)
         try {
             // userOp.preVerificationGas contains a promise that will resolve to an error.
