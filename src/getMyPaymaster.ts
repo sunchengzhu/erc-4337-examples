@@ -4,6 +4,7 @@ import {UserOperationStruct} from "@account-abstraction/contracts";
 import {arrayify, hexConcat} from "ethers/lib/utils";
 import {VerifyingPaymaster__factory} from "../typechain";
 import {JsonRpcProvider} from "@ethersproject/providers";
+import {printOp} from "./opUtils";
 
 
 const ADDR_SIZE = 20;
@@ -47,6 +48,7 @@ class VerifyingPaymasterAPI extends PaymasterAPI {
         };
         const op = await ethers.utils.resolveProperties(pmOp);
         op.preVerificationGas = calcPreVerificationGas(op);
+        // console.log(`Original UserOperation: ${await printOp(op)}`);
         const hash = await paymaster.getHash(<UserOperationStruct>op)
         const sig = await offchainSigner.signMessage(arrayify(hash))
         return hexConcat([paymaster.address, sig])
