@@ -47,7 +47,7 @@ yarn run simpleAccount transfer --to <address> --amount <eth>
 ```
 例子：
 ```bash
-yarn run simpleAccount transfer --to 0x413978328AA912d3fc63929d356d353F6e854Ee1 --amount 0.001 --withPaymaster
+yarn run simpleAccount transfer --to 0x413978328AA912d3fc63929d356d353F6e854Ee1 --amount 0.001
 ```
 
 ### erc20转账
